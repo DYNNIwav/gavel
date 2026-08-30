@@ -11,6 +11,3 @@ Thumbs.db
 node_modules/
 dist/
 .vercel
-
-# Vercel CLI boilerplate, not part of this project
-AGENTS.md
