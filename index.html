@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gavel, the campus auction house</title>
+    <meta
+      name="description"
+      content="Gavel is a student-only auction marketplace. Buy and sell cameras, instruments, tech, textbooks and furniture with other Noroff students."
+    />
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container site-nav">
+        <a href="/" class="logo">
+          <img src="/images/logo.svg" alt="" width="30" height="30" />
+          <span>Gavel</span>
+        </a>
+
+        <button
+          type="button"
+          id="nav-toggle"
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="nav-links"
+        >
+          <span class="sr-only">Menu</span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M3 5h14M3 10h14M3 15h14" />
+          </svg>
+        </button>
+
+        <nav id="nav-links" class="nav-links" aria-label="Main"></nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="container hero">
+        <h1>The campus auction house</h1>
+        <p class="hero-lead">
+          Cameras, guitars, monitors, textbooks and the desk that will not fit
+          in your next flat. Sold to other students, one bid at a time.
+        </p>
+      </section>
+
+      <section class="container" aria-labelledby="listings-heading">
+        <h2 id="listings-heading">Open lots</h2>
+        <div id="listings" class="listing-grid">
+          <p class="empty-state">Listings arrive in the next commit.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          Gavel, a student project for Noroff. Auction data from the
+          <a href="https://docs.noroff.dev/docs/v2" rel="noopener noreferrer"
+            >Noroff API v2</a
+          >.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

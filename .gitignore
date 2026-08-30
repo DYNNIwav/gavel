@@ -1,0 +1,16 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+.cursor/
+
+# Dependencies
+node_modules/
+dist/
+.vercel
+
+# Vercel CLI boilerplate, not part of this project
+AGENTS.md

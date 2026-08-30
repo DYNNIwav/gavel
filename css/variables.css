@@ -1,0 +1,30 @@
+@theme {
+  --color-paper: #faf5ec;
+  --color-surface: #fffdf8;
+  --color-border: #e4daca;
+
+  --color-ink: #241d16;
+  --color-muted: #7a6e5f;
+
+  --color-forest: #2e4a38;
+  --color-moss: #4c7a4f;
+
+  --color-oak: #c79a5b;
+  --color-walnut: #6e4b2a;
+
+  --color-ember: #b04e1c;
+  --color-brick: #a32e22;
+
+  --font-heading: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 32px;
+  --spacing-xl: 64px;
+
+  --radius-card: 10px;
+  --radius-control: 8px;
+  --radius-pill: 999px;
+}

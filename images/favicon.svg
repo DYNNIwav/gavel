@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Gavel">
+  <title>Gavel</title>
+  <rect width="32" height="32" rx="7" fill="#FAF5EC"/>
+  <rect x="5" y="24" width="22" height="4" rx="2" fill="#6E4B2A"/>
+  <g transform="rotate(-38 16 13)">
+    <rect x="14.5" y="11" width="3" height="12" rx="1.5" fill="#C79A5B"/>
+    <rect x="8.5" y="4.5" width="15" height="7.5" rx="2.25" fill="#2E4A38"/>
+    <rect x="15.25" y="4.5" width="1.6" height="7.5" fill="#C79A5B" opacity="0.45"/>
+  </g>
+</svg>

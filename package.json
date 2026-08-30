@@ -1,0 +1,23 @@
+{
+  "name": "gavel",
+  "version": "1.0.0",
+  "description": "Gavel, a student-only auction marketplace built with vanilla TypeScript, Tailwind CSS and the Noroff Auction House API.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "contrast": "node scripts/check-contrast.mjs"
+  },
+  "type": "module",
+  "devDependencies": {
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.8"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  }
+}
