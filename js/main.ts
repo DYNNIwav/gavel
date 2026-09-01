@@ -11,6 +11,13 @@ try {
     listingsContainer.textContent = '';
     for (const listing of result.data) {
       const card = document.createElement('div');
+      const media = listing.media?.[0];
+      if (media) {
+        const image = document.createElement('img');
+        image.src = media.url;
+        image.alt = media.alt || listing.title;
+        card.appendChild(image);
+      }
       const title = document.createElement('h3');
       title.textContent = listing.title;
       const seller = document.createElement('p');
