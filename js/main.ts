@@ -26,7 +26,13 @@ try {
       const seller = document.createElement('p');
       seller.textContent = listing.seller.name;
       const bids = document.createElement('p');
-      bids.textContent = `${listing.bids.length} bids`;
+      let highest = 0;
+      for (const bid of listing.bids) {
+        if (bid.amount > highest) {
+          highest = bid.amount;
+        }
+      }
+      bids.textContent = highest ? `Highest bid: ${highest}` : 'No bids yet';
       card.append(title, seller, bids);
       listingsContainer.appendChild(card);
     }
