@@ -16,6 +16,9 @@ try {
         const image = document.createElement('img');
         image.src = media.url;
         image.alt = media.alt || listing.title;
+        image.addEventListener('error', () => {
+          image.remove();
+        });
         card.appendChild(image);
       }
       const title = document.createElement('h3');
