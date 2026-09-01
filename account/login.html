@@ -16,6 +16,30 @@
           <img src="/images/logo.svg" alt="" width="30" height="30" />
           <span>Gavel</span>
         </a>
+
+        <button
+          type="button"
+          id="nav-toggle"
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="nav-links"
+        >
+          <span class="sr-only">Menu</span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M3 5h14M3 10h14M3 15h14" />
+          </svg>
+        </button>
+
+        <nav id="nav-links" class="nav-links" aria-label="Main"></nav>
       </div>
     </header>
 
@@ -65,6 +89,7 @@
         </p>
       </div>
     </footer>
+    <script type="module" src="/js/nav.ts"></script>
     <script type="module" src="/js/login.ts"></script>
   </body>
 </html>

@@ -1,11 +1,13 @@
+import { KEYS } from './storage.ts';
+
 const API_BASE = 'https://v2.api.noroff.dev';
 
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const token = localStorage.getItem('gavel_token');
-  const apiKey = localStorage.getItem('gavel_api_key');
+  const token = localStorage.getItem(KEYS.token);
+  const apiKey = localStorage.getItem(KEYS.apiKey);
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };

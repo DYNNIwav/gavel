@@ -1,5 +1,7 @@
 import type { ApiResponse, AuthProfile } from './types.ts';
 import { apiRequest } from './api.ts';
+import { KEYS } from './storage.ts';
+
 
 const loginForm = document.querySelector<HTMLFormElement>('#login-form');
 const errorBox = document.querySelector('#form-error');
@@ -22,9 +24,9 @@ if (loginForm) {
         },
       );
 
-      localStorage.setItem('gavel_token', response.data.accessToken);
-      localStorage.setItem('gavel_username', response.data.name);
-      if (!localStorage.getItem('gavel_api_key')) {
+      localStorage.setItem(KEYS.token, response.data.accessToken);
+      localStorage.setItem(KEYS.username, response.data.name);
+      if (!localStorage.getItem(KEYS.apiKey)) {
         const keyResponse = await apiRequest<ApiResponse<{ key: string }>>(
           '/auth/create-api-key',
           {
@@ -32,7 +34,7 @@ if (loginForm) {
             body: JSON.stringify({ name: 'Gavel key' }),
           },
         );
-        localStorage.setItem('gavel_api_key', keyResponse.data.key);
+        localStorage.setItem(KEYS.apiKey, keyResponse.data.key);
       }
       window.location.href = '/';
     } catch (error) {
