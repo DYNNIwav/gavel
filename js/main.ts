@@ -1,9 +1,10 @@
 import { apiRequest } from './api.ts';
+import type { ApiResponse, Listing } from './types.ts';
 
 const listingsContainer = document.querySelector('#listings');
 
 try {
-  const result = await apiRequest(
+  const result = await apiRequest<ApiResponse<Listing[]>>(
     '/auction/listings?limit=12&sort=created&sortOrder=desc&_active=true&_seller=true&_bids=true',
   );
 
@@ -24,10 +25,10 @@ try {
       const title = document.createElement('h3');
       title.textContent = listing.title;
       const seller = document.createElement('p');
-      seller.textContent = listing.seller.name;
+      seller.textContent = listing.seller?.name ?? 'Unknown seller';
       const bids = document.createElement('p');
       let highest = 0;
-      for (const bid of listing.bids) {
+      for (const bid of listing.bids ?? []) {
         if (bid.amount > highest) {
           highest = bid.amount;
         }

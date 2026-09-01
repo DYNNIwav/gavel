@@ -1,6 +1,6 @@
 const API_BASE = 'https://v2.api.noroff.dev';
 
-export async function apiRequest(endpoint: string) {
+export async function apiRequest<t>(endpoint: string): Promise<t> {
   const response = await fetch(`${API_BASE}${endpoint}`);
   const data = await response.json();
   if (!response.ok) {
