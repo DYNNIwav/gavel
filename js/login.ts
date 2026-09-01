@@ -24,6 +24,16 @@ if (loginForm) {
 
       localStorage.setItem('gavel_token', response.data.accessToken);
       localStorage.setItem('gavel_username', response.data.name);
+      if (!localStorage.getItem('gavel_api_key')) {
+        const keyResponse = await apiRequest<ApiResponse<{ key: string }>>(
+          '/auth/create-api-key',
+          {
+            method: 'POST',
+            body: JSON.stringify({ name: 'Gavel key' }),
+          },
+        );
+        localStorage.setItem('gavel_api_key', keyResponse.data.key);
+      }
       window.location.href = '/';
     } catch (error) {
       if (errorBox) {

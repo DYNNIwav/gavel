@@ -4,12 +4,18 @@ export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
+  const token = localStorage.getItem('gavel_token');
+  const apiKey = localStorage.getItem('gavel_api_key');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (apiKey) headers['X-Noroff-API-Key'] = apiKey;
+
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers: { ...headers, ...options.headers },
   });
   const data = await response.json();
   if (!response.ok) {
