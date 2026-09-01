@@ -32,3 +32,11 @@ export interface ApiResponse<T> {
   data: T;
   meta: { isLastPage: boolean; nextPage: number | null };
 }
+
+export interface AuthProfile {
+  name: string;
+  email: string;
+  avatar: Media;
+  banner: Media;
+  accessToken: string;
+}
