@@ -299,4 +299,212 @@
       border-bottom: 1px solid var(--color-border);
     }
   }
+
+  /* Listings Controls */
+  .listings-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    align-items: center;
+    justify-content: space-between;
+    margin: var(--spacing-lg) 0 var(--spacing-md);
+  }
+
+  .search-form {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .search-form input {
+    flex: 1;
+    min-height: 44px;
+    padding: 8px var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--color-ink);
+  }
+
+  .filter-sort-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    align-items: center;
+  }
+
+  .select-control {
+    min-height: 44px;
+    padding: 8px var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  /* Listing Grid & Cards */
+  .listing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+  }
+
+  .listing-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .listing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    text-decoration: none;
+  }
+
+  .listing-card img {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    background: var(--color-paper);
+  }
+
+  .listing-card-body {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 6px;
+  }
+
+  .listing-card-body h3 {
+    font-size: 1.05rem;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .listing-card-body .seller {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .listing-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: var(--spacing-sm);
+    font-size: 0.875rem;
+  }
+
+  .listing-meta-row .bids {
+    font-weight: 600;
+    color: var(--color-forest);
+  }
+
+  .listing-meta-row .ends {
+    color: var(--color-muted);
+    font-size: 0.8rem;
+  }
+
+  /* Single Listing Page */
+  .single-listing {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: var(--spacing-lg);
+  }
+
+  .listing-header h1 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .listing-meta {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .listing-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .listing-gallery img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: var(--radius-control);
+  }
+
+  .listing-description {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .bids-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .current-bid {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-forest);
+  }
+
+  .bid-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    max-width: 320px;
+  }
+
+  .bid-history {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .bid-history li {
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.9rem;
+    color: var(--color-muted);
+  }
+
+  .auction-ended {
+    font-weight: 600;
+    color: var(--color-brick);
+  }
+
+  .empty-state {
+    color: var(--color-muted);
+    padding: var(--spacing-xl) 0;
+    text-align: center;
+  }
 }
+

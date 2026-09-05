@@ -58,8 +58,41 @@
 
       <section class="container" aria-labelledby="listings-heading">
         <h2 id="listings-heading">Open lots</h2>
+
+        <div class="listings-controls">
+          <form id="search-form" class="search-form" role="search">
+            <label for="search-input" class="sr-only">Search listings</label>
+            <input
+              type="search"
+              id="search-input"
+              name="q"
+              placeholder="Search listings..."
+            />
+            <button type="submit" class="btn btn-primary" style="width: auto;">Search</button>
+          </form>
+
+          <div class="filter-sort-group">
+            <label for="sort-select" class="sr-only">Sort listings</label>
+            <select id="sort-select" class="select-control">
+              <option value="created-desc">Newest</option>
+              <option value="created-asc">Oldest</option>
+              <option value="endsAt-asc">Ending soonest</option>
+            </select>
+
+            <label for="tag-select" class="sr-only">Filter by category</label>
+            <select id="tag-select" class="select-control">
+              <option value="">All tags</option>
+              <option value="tech">Tech</option>
+              <option value="books">Books</option>
+              <option value="clothes">Clothes</option>
+              <option value="art">Art</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
         <div id="listings" class="listing-grid">
-          <p class="empty-state">Listings arrive in the next commit.</p>
+          <p class="empty-state">Loading listings...</p>
         </div>
       </section>
     </main>
