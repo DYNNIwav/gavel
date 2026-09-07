@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listing - Gavel</title>
+    <meta
+      name="description"
+      content="View item details, seller info, and place bids on Gavel."
+    />
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container site-nav">
+        <a href="/" class="logo">
+          <img src="/images/logo.svg" alt="" width="30" height="30" />
+          <span>Gavel</span>
+        </a>
+
+        <button
+          type="button"
+          id="nav-toggle"
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="nav-links"
+        >
+          <span class="sr-only">Menu</span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M3 5h14M3 10h14M3 15h14" />
+          </svg>
+        </button>
+
+        <nav id="nav-links" class="nav-links" aria-label="Main"></nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="container" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl);">
+        <article id="listing" class="single-listing">
+          <p class="empty-state">Loading listing...</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          Gavel, a student project for Noroff. Auction data from the
+          <a href="https://docs.noroff.dev/docs/v2" rel="noopener noreferrer"
+            >Noroff API v2</a
+          >.
+        </p>
+      </div>
+    </footer>
+    <script type="module" src="/js/nav.ts"></script>
+    <script type="module" src="/js/listing.ts"></script>
+  </body>
+</html>
