@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Listing - Gavel</title>
+    <meta name="description" content="Create a new auction listing on Gavel." />
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container site-nav">
+        <a href="/" class="logo">
+          <img src="/images/logo.svg" alt="" width="30" height="30" />
+          <span>Gavel</span>
+        </a>
+
+        <button
+          type="button"
+          id="nav-toggle"
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="nav-links"
+        >
+          <span class="sr-only">Menu</span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M3 5h14M3 10h14M3 15h14" />
+          </svg>
+        </button>
+
+        <nav id="nav-links" class="nav-links" aria-label="Main"></nav>
+      </div>
+    </header>
+
+    <main id="main" class="container form-page" style="max-width: 600px;">
+      <h1>Create Listing</h1>
+      <p class="form-lead">List an item for auction on campus.</p>
+
+      <form id="create-listing-form" novalidate>
+        <p id="form-error" class="field-error" role="alert"></p>
+
+        <div class="form-group">
+          <label for="title">Title *</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            required
+            maxlength="280"
+            placeholder="e.g. Calculus Textbook, 9th Edition"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+            placeholder="Describe the condition, features, or pickup details..."
+            style="width: 100%; padding: 10px var(--spacing-md); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); font-family: var(--font-body); font-size: 1rem; color: var(--color-ink);"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="endsAt">Auction End Date and Time *</label>
+          <input
+            type="datetime-local"
+            id="endsAt"
+            name="endsAt"
+            required
+          />
+          <span class="form-hint">Must be in the future.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="tags">Tags</label>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            placeholder="textbooks, math, books (comma separated)"
+          />
+          <span class="form-hint">Separate tags with commas.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="mediaUrl">Image URL</label>
+          <input
+            type="url"
+            id="mediaUrl"
+            name="mediaUrl"
+            placeholder="https://example.com/item.jpg"
+          />
+          <span class="form-hint">Must be a valid, public image URL.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">Create listing</button>
+      </form>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          Gavel, a student project for Noroff. Auction data from the
+          <a href="https://docs.noroff.dev/docs/v2" rel="noopener noreferrer"
+            >Noroff API v2</a
+          >.
+        </p>
+      </div>
+    </footer>
+    <script type="module" src="/js/nav.ts"></script>
+    <script type="module" src="/js/create-listing.ts"></script>
+  </body>
+</html>

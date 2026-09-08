@@ -19,6 +19,7 @@ if (navLinks) {
   addLink('/', 'Listings');
 
   if (username) {
+    addLink('/listing/create.html', 'New listing');
     const loggedIn = document.createElement('span');
     loggedIn.className = 'nav-user';
     loggedIn.textContent = username;
