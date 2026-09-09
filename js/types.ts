@@ -40,3 +40,21 @@ export interface AuthProfile {
   banner: Media;
   accessToken: string;
 }
+
+export interface Profile {
+  name: string;
+  email: string;
+  bio?: string;
+  avatar?: Media;
+  banner?: Media;
+  credits: number;
+  listings?: Listing[];
+  wins?: Listing[];
+  _count: { listings: number; wins: number };
+}
+
+export interface UpdateProfilePayload {
+  bio?: string;
+  avatar?: { url: string; alt?: string };
+  banner?: { url: string; alt?: string };
+}

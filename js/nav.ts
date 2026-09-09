@@ -20,9 +20,13 @@ if (navLinks) {
 
   if (username) {
     addLink('/listing/create.html', 'New listing');
-    const loggedIn = document.createElement('span');
-    loggedIn.className = 'nav-user';
+    const loggedIn = document.createElement('a');
+    loggedIn.href = '/account/profile.html';
+    loggedIn.className = 'nav-user nav-link';
     loggedIn.textContent = username;
+    if (window.location.pathname === '/account/profile.html') {
+      loggedIn.setAttribute('aria-current', 'page');
+    }
     navLinks.appendChild(loggedIn);
 
     const logout = document.createElement('button');
