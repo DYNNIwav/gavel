@@ -1,6 +1,8 @@
 import { apiRequest } from './api.ts';
 import { KEYS } from './storage.ts';
+import { showToast } from './toast.ts';
 import type { ApiResponse, Listing } from './types.ts';
+import { isWatchlisted, toggleWatchlist } from './watchlist.ts';
 
 const params = new URLSearchParams(window.location.search);
 const listingId = params.get('id');
@@ -44,6 +46,23 @@ async function loadListing(): Promise<void> {
     meta.className = 'listing-meta';
     meta.textContent = `Listed by ${listing.seller?.name ?? 'Unknown seller'} · Ends ${formatDate(listing.endsAt)}`;
     header.appendChild(meta);
+
+    const watchBtn = document.createElement('button');
+    watchBtn.type = 'button';
+    watchBtn.className = 'btn';
+    watchBtn.style.marginTop = 'var(--spacing-xs)';
+    watchBtn.style.fontSize = '0.9rem';
+    const updateWatchText = () => {
+      watchBtn.textContent = isWatchlisted(listing.id)
+        ? '★ Saved in Watchlist'
+        : '☆ Add to Watchlist';
+    };
+    updateWatchText();
+    watchBtn.addEventListener('click', () => {
+      toggleWatchlist(listing.id);
+      updateWatchText();
+    });
+    header.appendChild(watchBtn);
 
     container.appendChild(header);
 
@@ -145,6 +164,7 @@ async function loadListing(): Promise<void> {
             body: JSON.stringify({ amount }),
           });
           await loadListing();
+          showToast('Bid placed! May the auction gods smile upon you.', 'success');
         } catch (err: unknown) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Submit bid';

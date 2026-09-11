@@ -20,6 +20,7 @@ if (navLinks) {
 
   if (username) {
     addLink('/listing/create.html', 'New listing');
+    addLink('/watchlist/', 'Watchlist');
     const loggedIn = document.createElement('a');
     loggedIn.href = '/account/profile.html';
     loggedIn.className = 'nav-user nav-link';

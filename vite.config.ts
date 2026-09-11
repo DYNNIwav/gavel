@@ -13,6 +13,7 @@ export default defineConfig({
         listing: resolve(__dirname, 'listing/index.html'),
         createListing: resolve(__dirname, 'listing/create.html'),
         profile: resolve(__dirname, 'account/profile.html'),
+        watchlist: resolve(__dirname, 'watchlist/index.html'),
       },
     },
   },
