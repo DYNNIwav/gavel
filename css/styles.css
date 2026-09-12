@@ -237,7 +237,13 @@
   }
 
   .form-group input[type='datetime-local'] {
-    appearance: none;
+    color-scheme: light;
+    color: var(--color-ink);
+  }
+
+  .form-group input[type='datetime-local']::-webkit-date-and-time-value {
+    min-height: 1.4em;
+    text-align: left;
   }
 
   .form-group input[type='datetime-local']::-webkit-datetime-edit {
