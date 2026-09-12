@@ -29,7 +29,10 @@ export function toggleWatchlist(id: string): boolean {
   } else {
     current.push(id);
     saveWatchlist(current);
-    showToast('Saved to your watchlist! Don\'t let your dreams be memes.', 'success');
+    showToast(
+      "Saved to your watchlist! Don't let your dreams be memes.",
+      'success',
+    );
     return true;
   }
 }
@@ -60,7 +63,9 @@ async function loadWatchlist(): Promise<void> {
 
   const results = await Promise.allSettled(
     ids.map((id) =>
-      apiRequest<ApiResponse<Listing>>(`/auction/listings/${id}?_seller=true&_bids=true`),
+      apiRequest<ApiResponse<Listing>>(
+        `/auction/listings/${id}?_seller=true&_bids=true`,
+      ),
     ),
   );
 
@@ -81,12 +86,11 @@ async function loadWatchlist(): Promise<void> {
 
   for (const item of validListings) {
     const card = document.createElement('article');
-    card.className = 'listing-card watchlist-card';
+    card.className = 'listing-card';
 
     const link = document.createElement('a');
     link.href = `/listing/?id=${item.id}`;
-    link.style.textDecoration = 'none';
-    link.style.color = 'inherit';
+    link.className = 'watchlist-card-link';
 
     const img = document.createElement('img');
     img.src =
@@ -129,14 +133,11 @@ async function loadWatchlist(): Promise<void> {
     link.append(img, body);
 
     const actionRow = document.createElement('div');
-    actionRow.style.padding = '0 var(--spacing-md) var(--spacing-md)';
+    actionRow.className = 'watchlist-card-actions';
 
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
-    removeBtn.className = 'btn';
-    removeBtn.style.width = '100%';
-    removeBtn.style.fontSize = '0.85rem';
-    removeBtn.style.padding = '6px';
+    removeBtn.className = 'btn btn-secondary btn-block';
     removeBtn.textContent = 'Remove from watchlist';
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();

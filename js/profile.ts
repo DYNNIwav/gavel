@@ -159,7 +159,7 @@ async function loadProfile(): Promise<void> {
 
     const saveBtn = document.createElement('button');
     saveBtn.type = 'submit';
-    saveBtn.className = 'btn btn-primary';
+    saveBtn.className = 'btn btn-primary btn-block';
     saveBtn.textContent = 'Save Changes';
 
     editForm.append(editError, bioGroup, avatarGroup, bannerGroup, saveBtn);
@@ -173,10 +173,16 @@ async function loadProfile(): Promise<void> {
       const updateData: UpdateProfilePayload = {};
       if (bioInput.value.trim()) updateData.bio = bioInput.value.trim();
       if (avatarInput.value.trim()) {
-        updateData.avatar = { url: avatarInput.value.trim(), alt: profile.name };
+        updateData.avatar = {
+          url: avatarInput.value.trim(),
+          alt: profile.name,
+        };
       }
       if (bannerInput.value.trim()) {
-        updateData.banner = { url: bannerInput.value.trim(), alt: `${profile.name}'s banner` };
+        updateData.banner = {
+          url: bannerInput.value.trim(),
+          alt: `${profile.name}'s banner`,
+        };
       }
 
       try {

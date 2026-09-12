@@ -49,9 +49,7 @@ async function loadListing(): Promise<void> {
 
     const watchBtn = document.createElement('button');
     watchBtn.type = 'button';
-    watchBtn.className = 'btn';
-    watchBtn.style.marginTop = 'var(--spacing-xs)';
-    watchBtn.style.fontSize = '0.9rem';
+    watchBtn.className = 'btn btn-secondary watch-btn';
     const updateWatchText = () => {
       watchBtn.textContent = isWatchlisted(listing.id)
         ? '★ Saved in Watchlist'
@@ -99,14 +97,18 @@ async function loadListing(): Promise<void> {
     bidsSection.appendChild(bidsHeading);
 
     let highest = 0;
-    const sortedBids = [...(listing.bids ?? [])].sort((a, b) => b.amount - a.amount);
+    const sortedBids = [...(listing.bids ?? [])].sort(
+      (a, b) => b.amount - a.amount,
+    );
     if (sortedBids.length > 0) {
       highest = sortedBids[0].amount;
     }
 
     const currentBid = document.createElement('p');
     currentBid.className = 'current-bid';
-    currentBid.textContent = highest ? `Current highest bid: ${highest} credits` : 'No bids placed yet';
+    currentBid.textContent = highest
+      ? `Current highest bid: ${highest} credits`
+      : 'No bids placed yet';
     bidsSection.appendChild(currentBid);
 
     const token = localStorage.getItem(KEYS.token);
@@ -164,7 +166,10 @@ async function loadListing(): Promise<void> {
             body: JSON.stringify({ amount }),
           });
           await loadListing();
-          showToast('Bid placed! May the auction gods smile upon you.', 'success');
+          showToast(
+            'Bid placed! May the auction gods smile upon you.',
+            'success',
+          );
         } catch (err: unknown) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Submit bid';
@@ -180,7 +185,8 @@ async function loadListing(): Promise<void> {
     } else {
       const loginPrompt = document.createElement('p');
       loginPrompt.className = 'login-prompt';
-      loginPrompt.innerHTML = '<a href="/account/login.html">Log in</a> to place a bid on this listing.';
+      loginPrompt.innerHTML =
+        '<a href="/account/login.html">Log in</a> to place a bid on this listing.';
       bidsSection.appendChild(loginPrompt);
     }
 
@@ -199,7 +205,8 @@ async function loadListing(): Promise<void> {
     container.appendChild(bidsSection);
   } catch (error) {
     console.error('Failed to load listing:', error);
-    container.innerHTML = '<p class="field-error">Could not load this listing.</p>';
+    container.innerHTML =
+      '<p class="field-error">Could not load this listing.</p>';
   }
 }
 

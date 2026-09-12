@@ -47,12 +47,35 @@ const pairings = [
   { fg: 'color-ink', bg: 'color-surface', label: 'Body text on surface' },
   { fg: 'color-muted', bg: 'color-paper', label: 'Muted text on paper' },
   { fg: 'color-muted', bg: 'color-surface', label: 'Muted text on surface' },
-  { fg: 'color-forest', bg: 'color-paper', label: 'Forest green links on paper' },
-  { fg: 'color-forest', bg: 'color-surface', label: 'Forest green links on surface' },
+  {
+    fg: 'color-forest',
+    bg: 'color-paper',
+    label: 'Forest green links on paper',
+  },
+  {
+    fg: 'color-forest',
+    bg: 'color-surface',
+    label: 'Forest green links on surface',
+  },
   { fg: 'color-brick', bg: 'color-paper', label: 'Error text on paper' },
   { fg: 'color-brick', bg: 'color-surface', label: 'Error text on surface' },
   { fg: 'color-ember', bg: 'color-paper', label: 'Ember ending soon on paper' },
   { fg: 'color-surface', bg: 'color-forest', label: 'Button text on forest' },
+  {
+    fg: 'color-paper',
+    bg: 'color-forest-deep',
+    label: 'Button text on forest hover',
+  },
+  {
+    fg: 'color-ink',
+    bg: 'color-paper',
+    label: 'Secondary button text on paper',
+  },
+  {
+    fg: 'color-forest',
+    bg: 'color-paper',
+    label: 'Secondary button hover on paper',
+  },
 ];
 
 let allPassed = true;
