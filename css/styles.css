@@ -547,6 +547,10 @@
   }
 
   @media (max-width: 767px) {
+    .site-nav {
+      padding: var(--spacing-md) var(--spacing-sm);
+    }
+
     .nav-toggle {
       display: inline-flex;
     }
