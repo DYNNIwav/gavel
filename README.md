@@ -10,7 +10,7 @@ Author: Pål Omland Eilevstjønn
 - **Live Site:** https://gavel-nu.vercel.app
 - **Repository:** https://github.com/DYNNIwav/gavel
 - **Kanban Board:** https://github.com/users/DYNNIwav/projects/9
-- **Figma:** https://www.figma.com/design/BByBwaeeskKhRVziFOZukP/Gavel?node-id=0-
+- **Figma:** https://www.figma.com/design/BByBwaeeskKhRVziFOZukP/Gavel?node-id=0-1
 
 ## Features
 
