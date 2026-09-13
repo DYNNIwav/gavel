@@ -11,7 +11,6 @@ Author: Pål Omland Eilevstjønn
 - **Repository:** https://github.com/DYNNIwav/gavel
 - **Kanban Board:** https://github.com/users/DYNNIwav/projects/9
 - **Figma:** https://www.figma.com/design/BByBwaeeskKhRVziFOZukP/Gavel?node-id=0-
-1&t=LfpggON6x0YujUAx-1
 
 ## Features
 
