@@ -301,12 +301,19 @@ async function loadListing(): Promise<void> {
 
     const token = localStorage.getItem(KEYS.token);
     const isEnded = new Date(listing.endsAt).getTime() <= Date.now();
+    const isOwnListing = Boolean(username && listing.seller?.name === username);
 
     if (isEnded) {
       const endedMsg = document.createElement('p');
       endedMsg.className = 'auction-ended';
       endedMsg.textContent = 'This auction has ended.';
       bidsSection.appendChild(endedMsg);
+    } else if (isOwnListing) {
+      const ownNotice = document.createElement('p');
+      ownNotice.className = 'own-listing-notice';
+      ownNotice.textContent =
+        'You cannot bid on your own listing. Use Manage this listing below to edit or delete it.';
+      bidsSection.appendChild(ownNotice);
     } else if (token) {
       const bidForm = document.createElement('form');
       bidForm.className = 'bid-form';
@@ -397,7 +404,7 @@ async function loadListing(): Promise<void> {
 
     container.appendChild(bidsSection);
 
-    if (username && listing.seller?.name === username) {
+    if (isOwnListing) {
       container.appendChild(buildOwnerTools(listing));
     }
   } catch (error) {

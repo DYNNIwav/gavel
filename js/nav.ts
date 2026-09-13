@@ -36,17 +36,29 @@ if (navLinks) {
     const creditsBadge = document.createElement('span');
     creditsBadge.className = 'nav-credits';
     creditsBadge.setAttribute('aria-label', 'Your available credits');
+
+    const stored = localStorage.getItem(KEYS.credits);
+    const cachedCredits = stored === null ? NaN : Number(stored);
+    const hasCached = Number.isFinite(cachedCredits);
+
+    if (hasCached) {
+      creditsBadge.textContent = `${cachedCredits.toLocaleString()} credits`;
+    }
     navLinks.appendChild(creditsBadge);
 
     apiRequest<ApiResponse<Profile>>(
       `/auction/profiles/${encodeURIComponent(username)}`,
     )
       .then((res) => {
-        creditsBadge.textContent = `${res.data.credits.toLocaleString()} credits`;
+        const { credits } = res.data;
+        localStorage.setItem(KEYS.credits, String(credits));
+        creditsBadge.textContent = `${credits.toLocaleString()} credits`;
       })
       .catch((err) => {
         console.warn('Could not load credit balance in navbar:', err);
-        creditsBadge.remove();
+        if (!hasCached) {
+          creditsBadge.remove();
+        }
       });
 
     const logout = document.createElement('button');
@@ -57,6 +69,7 @@ if (navLinks) {
       localStorage.removeItem(KEYS.token);
       localStorage.removeItem(KEYS.username);
       localStorage.removeItem(KEYS.apiKey);
+      localStorage.removeItem(KEYS.credits);
       window.location.href = '/';
     });
     navLinks.appendChild(logout);
