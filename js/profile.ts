@@ -11,13 +11,17 @@ import type {
 } from './types.ts';
 
 const container = document.querySelector<HTMLElement>('#profile-container');
-const username = localStorage.getItem(KEYS.username);
 const token = localStorage.getItem(KEYS.token);
+const myUsername = localStorage.getItem(KEYS.username);
+
+const params = new URLSearchParams(window.location.search);
+const profileName = params.get('name') ?? myUsername;
+const isOwnProfile = profileName === myUsername;
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
 
-if (!token || !username) {
+if (!token || !profileName) {
   window.location.href = '/account/login.html';
 }
 
@@ -90,12 +94,10 @@ function createListingSection(
   return section;
 }
 
-async function buildBidsSection(): Promise<HTMLElement> {
-  if (!username) return document.createElement('section');
-
+async function buildBidsSection(name: string): Promise<HTMLElement> {
   try {
     const bidsRes = await apiRequest<ApiResponse<ProfileBid[]>>(
-      `/auction/profiles/${encodeURIComponent(username)}/bids?_listings=true`,
+      `/auction/profiles/${encodeURIComponent(name)}/bids?_listings=true`,
     );
 
     const highestPerListing = new Map<
@@ -135,15 +137,17 @@ async function buildBidsSection(): Promise<HTMLElement> {
 }
 
 async function loadProfile(): Promise<void> {
-  if (!container || !username) return;
+  if (!container || !profileName) return;
 
   try {
     const result = await apiRequest<ApiResponse<Profile>>(
-      `/auction/profiles/${encodeURIComponent(username)}?_listings=true&_wins=true`,
+      `/auction/profiles/${encodeURIComponent(profileName)}?_listings=true&_wins=true`,
     );
     const profile = result.data;
 
-    document.title = `${profile.name} - Profile - Gavel`;
+    document.title = isOwnProfile
+      ? `${profile.name} - Profile - Gavel`
+      : `${profile.name} - Gavel`;
     container.textContent = '';
 
     const card = document.createElement('div');
@@ -184,15 +188,19 @@ async function loadProfile(): Promise<void> {
     nameHeading.textContent = profile.name;
     info.appendChild(nameHeading);
 
-    const email = document.createElement('p');
-    email.className = 'profile-email';
-    email.textContent = profile.email;
-    info.appendChild(email);
+    if (isOwnProfile) {
+      const email = document.createElement('p');
+      email.className = 'profile-email';
+      email.textContent = profile.email;
+      info.appendChild(email);
+    }
 
-    const creditsBadge = document.createElement('div');
-    creditsBadge.className = 'profile-credits';
-    creditsBadge.textContent = `${profile.credits ?? 0} credits available`;
-    info.appendChild(creditsBadge);
+    if (isOwnProfile) {
+      const creditsBadge = document.createElement('div');
+      creditsBadge.className = 'profile-credits';
+      creditsBadge.textContent = `${profile.credits ?? 0} credits available`;
+      info.appendChild(creditsBadge);
+    }
 
     if (profile.bio) {
       const bio = document.createElement('p');
@@ -204,123 +212,129 @@ async function loadProfile(): Promise<void> {
     header.appendChild(info);
     card.appendChild(header);
 
-    const editSection = document.createElement('details');
-    editSection.className = 'profile-edit-accordion';
-    const editSummary = document.createElement('summary');
-    editSummary.textContent = 'Edit Profile (Avatar, Banner, Bio)';
-    editSection.appendChild(editSummary);
+    if (isOwnProfile) {
+      const editSection = document.createElement('details');
+      editSection.className = 'profile-edit-accordion';
+      const editSummary = document.createElement('summary');
+      editSummary.textContent = 'Edit Profile (Avatar, Banner, Bio)';
+      editSection.appendChild(editSummary);
 
-    const editForm = document.createElement('form');
-    editForm.className = 'profile-edit-form';
+      const editForm = document.createElement('form');
+      editForm.className = 'profile-edit-form';
 
-    const editError = document.createElement('p');
-    editError.className = 'field-error';
+      const editError = document.createElement('p');
+      editError.className = 'field-error';
 
-    const bioGroup = document.createElement('div');
-    bioGroup.className = 'form-group';
-    const bioLabel = document.createElement('label');
-    bioLabel.htmlFor = 'edit-bio';
-    bioLabel.textContent = 'Bio';
-    const bioInput = document.createElement('textarea');
-    bioInput.id = 'edit-bio';
-    bioInput.rows = 3;
-    bioInput.value = profile.bio ?? '';
-    bioGroup.append(bioLabel, bioInput);
+      const bioGroup = document.createElement('div');
+      bioGroup.className = 'form-group';
+      const bioLabel = document.createElement('label');
+      bioLabel.htmlFor = 'edit-bio';
+      bioLabel.textContent = 'Bio';
+      const bioInput = document.createElement('textarea');
+      bioInput.id = 'edit-bio';
+      bioInput.rows = 3;
+      bioInput.value = profile.bio ?? '';
+      bioGroup.append(bioLabel, bioInput);
 
-    const avatarGroup = document.createElement('div');
-    avatarGroup.className = 'form-group';
-    const avatarLabel = document.createElement('label');
-    avatarLabel.htmlFor = 'edit-avatar';
-    avatarLabel.textContent = 'Avatar Image URL';
-    const avatarInput = document.createElement('input');
-    avatarInput.type = 'url';
-    avatarInput.id = 'edit-avatar';
-    avatarInput.value = profile.avatar?.url ?? '';
-    avatarGroup.append(avatarLabel, avatarInput);
+      const avatarGroup = document.createElement('div');
+      avatarGroup.className = 'form-group';
+      const avatarLabel = document.createElement('label');
+      avatarLabel.htmlFor = 'edit-avatar';
+      avatarLabel.textContent = 'Avatar Image URL';
+      const avatarInput = document.createElement('input');
+      avatarInput.type = 'url';
+      avatarInput.id = 'edit-avatar';
+      avatarInput.value = profile.avatar?.url ?? '';
+      avatarGroup.append(avatarLabel, avatarInput);
 
-    const bannerGroup = document.createElement('div');
-    bannerGroup.className = 'form-group';
-    const bannerLabel = document.createElement('label');
-    bannerLabel.htmlFor = 'edit-banner';
-    bannerLabel.textContent = 'Banner Image URL';
-    const bannerInput = document.createElement('input');
-    bannerInput.type = 'url';
-    bannerInput.id = 'edit-banner';
-    bannerInput.value = profile.banner?.url ?? '';
-    bannerGroup.append(bannerLabel, bannerInput);
+      const bannerGroup = document.createElement('div');
+      bannerGroup.className = 'form-group';
+      const bannerLabel = document.createElement('label');
+      bannerLabel.htmlFor = 'edit-banner';
+      bannerLabel.textContent = 'Banner Image URL';
+      const bannerInput = document.createElement('input');
+      bannerInput.type = 'url';
+      bannerInput.id = 'edit-banner';
+      bannerInput.value = profile.banner?.url ?? '';
+      bannerGroup.append(bannerLabel, bannerInput);
 
-    const saveBtn = document.createElement('button');
-    saveBtn.type = 'submit';
-    saveBtn.className = 'btn btn-primary btn-block';
-    saveBtn.textContent = 'Save Changes';
+      const saveBtn = document.createElement('button');
+      saveBtn.type = 'submit';
+      saveBtn.className = 'btn btn-primary btn-block';
+      saveBtn.textContent = 'Save Changes';
 
-    editForm.append(editError, bioGroup, avatarGroup, bannerGroup, saveBtn);
+      editForm.append(editError, bioGroup, avatarGroup, bannerGroup, saveBtn);
 
-    editForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      editError.textContent = '';
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        editError.textContent = '';
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
 
-      const updateData: UpdateProfilePayload = {};
-      if (bioInput.value.trim()) updateData.bio = bioInput.value.trim();
-      if (avatarInput.value.trim()) {
-        updateData.avatar = {
-          url: avatarInput.value.trim(),
-          alt: profile.name,
-        };
-      }
-      if (bannerInput.value.trim()) {
-        updateData.banner = {
-          url: bannerInput.value.trim(),
-          alt: `${profile.name}'s banner`,
-        };
-      }
-
-      try {
-        await apiRequest(`/auction/profiles/${encodeURIComponent(username)}`, {
-          method: 'PUT',
-          body: JSON.stringify(updateData),
-        });
-        await loadProfile();
-        watchCountdowns();
-
-        if (new URLSearchParams(window.location.search).has('deleted')) {
-          showToast('Listing deleted.', 'success');
-          window.history.replaceState({}, '', window.location.pathname);
+        const updateData: UpdateProfilePayload = {};
+        if (bioInput.value.trim()) updateData.bio = bioInput.value.trim();
+        if (avatarInput.value.trim()) {
+          updateData.avatar = {
+            url: avatarInput.value.trim(),
+            alt: profile.name,
+          };
         }
-      } catch (err) {
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Save Changes';
-        editError.textContent =
-          err instanceof Error ? err.message : 'Failed to update profile.';
-      }
-    });
+        if (bannerInput.value.trim()) {
+          updateData.banner = {
+            url: bannerInput.value.trim(),
+            alt: `${profile.name}'s banner`,
+          };
+        }
 
-    editSection.appendChild(editForm);
-    card.appendChild(editSection);
+        try {
+          await apiRequest(
+            `/auction/profiles/${encodeURIComponent(profile.name)}`,
+            {
+              method: 'PUT',
+              body: JSON.stringify(updateData),
+            },
+          );
+          await loadProfile();
+        } catch (err) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Changes';
+          editError.textContent =
+            err instanceof Error ? err.message : 'Failed to update profile.';
+        }
+      });
+
+      editSection.appendChild(editForm);
+      card.appendChild(editSection);
+    }
+
     container.appendChild(card);
 
-    const myListings = profile.listings ?? [];
+    const listings = profile.listings ?? [];
     container.appendChild(
       createListingSection(
-        `My Listings (${myListings.length})`,
-        myListings.map((item) => createListingCard(item)),
-        'You have not created any listings yet.',
+        isOwnProfile
+          ? `My Listings (${listings.length})`
+          : `Listings by ${profile.name} (${listings.length})`,
+        listings.map((item) => createListingCard(item)),
+        isOwnProfile
+          ? 'You have not created any listings yet.'
+          : `${profile.name} has no listings right now.`,
       ),
     );
 
-    const wins = profile.wins ?? [];
-    container.appendChild(
-      createListingSection(
-        `Listings I Have Won (${wins.length})`,
-        wins.map((item) => createListingCard(item, 'Won')),
-        'You have not won any auctions yet.',
-        'profile-listings profile-wins',
-      ),
-    );
+    if (isOwnProfile) {
+      const wins = profile.wins ?? [];
+      container.appendChild(
+        createListingSection(
+          `Listings I Have Won (${wins.length})`,
+          wins.map((item) => createListingCard(item, 'Won')),
+          'You have not won any auctions yet.',
+          'profile-listings profile-wins',
+        ),
+      );
 
-    container.appendChild(await buildBidsSection());
+      container.appendChild(await buildBidsSection(profile.name));
+    }
   } catch (error) {
     console.error('Failed to load profile:', error);
     container.innerHTML = '<p class="field-error">Could not load profile.</p>';

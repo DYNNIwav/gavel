@@ -719,6 +719,21 @@
     margin-bottom: 0;
   }
 
+  .load-more-row {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--spacing-lg);
+  }
+
+  .load-more-row[hidden] {
+    display: none;
+  }
+
+  .seller-link {
+    color: var(--color-forest);
+    font-weight: 600;
+  }
+
   .watchlist-card-link {
     display: flex;
     flex-direction: column;

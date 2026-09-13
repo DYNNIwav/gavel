@@ -209,7 +209,22 @@ async function loadListing(): Promise<void> {
 
     const meta = document.createElement('p');
     meta.className = 'listing-meta';
-    meta.textContent = `Listed by ${listing.seller?.name ?? 'Unknown seller'} · Ends ${formatDate(listing.endsAt)}`;
+    meta.appendChild(document.createTextNode('Listed by '));
+
+    const sellerName = listing.seller?.name;
+    if (sellerName) {
+      const sellerLink = document.createElement('a');
+      sellerLink.href = `/account/profile.html?name=${encodeURIComponent(sellerName)}`;
+      sellerLink.className = 'seller-link';
+      sellerLink.textContent = sellerName;
+      meta.appendChild(sellerLink);
+    } else {
+      meta.appendChild(document.createTextNode('Unknown seller'));
+    }
+
+    meta.appendChild(
+      document.createTextNode(` · Ends ${formatDate(listing.endsAt)}`),
+    );
     headerMain.appendChild(meta);
 
     const countdown = document.createElement('p');

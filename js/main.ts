@@ -1,5 +1,6 @@
 import { apiRequest } from './api.ts';
 import { paintCountdown, watchCountdowns } from './countdown.ts';
+import { showToast } from './toast.ts';
 import type { ApiResponse, Listing } from './types.ts';
 
 const listingsContainer = document.querySelector<HTMLElement>('#listings');
@@ -7,97 +8,147 @@ const searchForm = document.querySelector<HTMLFormElement>('#search-form');
 const searchInput = document.querySelector<HTMLInputElement>('#search-input');
 const sortSelect = document.querySelector<HTMLSelectElement>('#sort-select');
 const tagSelect = document.querySelector<HTMLSelectElement>('#tag-select');
+const loadMoreRow = document.querySelector<HTMLElement>('#load-more-row');
+const loadMoreBtn = document.querySelector<HTMLButtonElement>('#load-more');
+
+const PAGE_SIZE = 24;
 
 let currentQuery = '';
 let currentTag = '';
 let currentSort = 'created';
 let currentSortOrder = 'desc';
+let nextPage: number | null = null;
 
-function renderListings(listings: Listing[]): void {
-  if (!listingsContainer) return;
-  listingsContainer.textContent = '';
+function buildEndpoint(page: number): string {
+  const shared = `limit=${PAGE_SIZE}&page=${page}&_seller=true&_bids=true&sort=${currentSort}&sortOrder=${currentSortOrder}`;
 
-  if (listings.length === 0) {
-    const empty = document.createElement('p');
-    empty.className = 'empty-state';
-    empty.textContent = 'No listings found.';
-    listingsContainer.appendChild(empty);
-    return;
+  if (currentQuery.trim()) {
+    return `/auction/listings/search?q=${encodeURIComponent(currentQuery.trim())}&${shared}`;
   }
 
-  for (const listing of listings) {
-    const card = document.createElement('a');
-    card.href = `/listing/?id=${listing.id}`;
-    card.className = 'listing-card';
+  if (currentTag) {
+    return `/auction/listings?_tag=${encodeURIComponent(currentTag)}&_active=true&${shared}`;
+  }
 
-    const media = listing.media?.[0];
-    if (media?.url) {
-      const image = document.createElement('img');
-      image.src = media.url;
-      image.alt = media.alt || listing.title;
-      image.addEventListener('error', () => {
-        image.remove();
-      });
-      card.appendChild(image);
+  return `/auction/listings?_active=true&${shared}`;
+}
+
+function createListingCard(listing: Listing): HTMLAnchorElement {
+  const card = document.createElement('a');
+  card.href = `/listing/?id=${listing.id}`;
+  card.className = 'listing-card';
+
+  const media = listing.media?.[0];
+  if (media?.url) {
+    const image = document.createElement('img');
+    image.src = media.url;
+    image.alt = media.alt || listing.title;
+    image.addEventListener('error', () => {
+      image.remove();
+    });
+    card.appendChild(image);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'listing-card-body';
+
+  const title = document.createElement('h3');
+  title.textContent = listing.title;
+
+  const seller = document.createElement('p');
+  seller.className = 'seller';
+  seller.textContent = `Listed by ${listing.seller?.name ?? 'Unknown'}`;
+
+  const meta = document.createElement('div');
+  meta.className = 'listing-meta-row';
+
+  let highest = 0;
+  for (const bid of listing.bids ?? []) {
+    if (bid.amount > highest) {
+      highest = bid.amount;
     }
+  }
 
-    const body = document.createElement('div');
-    body.className = 'listing-card-body';
+  const bids = document.createElement('span');
+  bids.className = 'bids';
+  bids.textContent = highest ? `${highest} credits` : 'No bids';
 
-    const title = document.createElement('h3');
-    title.textContent = listing.title;
+  const ends = document.createElement('span');
+  ends.className = 'ends countdown';
+  ends.dataset.endsAt = listing.endsAt;
+  paintCountdown(ends);
 
-    const seller = document.createElement('p');
-    seller.className = 'seller';
-    seller.textContent = `Listed by ${listing.seller?.name ?? 'Unknown'}`;
+  meta.append(bids, ends);
+  body.append(title, seller, meta);
+  card.appendChild(body);
 
-    const meta = document.createElement('div');
-    meta.className = 'listing-meta-row';
+  return card;
+}
 
-    let highest = 0;
-    for (const bid of listing.bids ?? []) {
-      if (bid.amount > highest) {
-        highest = bid.amount;
-      }
+function renderListings(listings: Listing[], append: boolean): void {
+  if (!listingsContainer) return;
+
+  if (!append) {
+    listingsContainer.textContent = '';
+
+    if (listings.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = 'No listings found.';
+      listingsContainer.appendChild(empty);
+      return;
     }
+  }
 
-    const bids = document.createElement('span');
-    bids.className = 'bids';
-    bids.textContent = highest ? `${highest} credits` : 'No bids';
+  const cards = listings.map(createListingCard);
+  listingsContainer.append(...cards);
 
-    const ends = document.createElement('span');
-    ends.className = 'ends countdown';
-    ends.dataset.endsAt = listing.endsAt;
-    paintCountdown(ends);
-
-    meta.append(bids, ends);
-    body.append(title, seller, meta);
-    card.appendChild(body);
-    listingsContainer.appendChild(card);
+  if (append && cards[0]) {
+    cards[0].focus();
   }
 }
 
-async function fetchListings(): Promise<void> {
+function updateLoadMore(): void {
+  if (!loadMoreRow || !loadMoreBtn) return;
+
+  loadMoreBtn.disabled = false;
+  loadMoreBtn.textContent = 'Load more listings';
+  loadMoreRow.hidden = nextPage === null;
+}
+
+async function fetchListings(page = 1): Promise<void> {
   if (!listingsContainer) return;
-  listingsContainer.innerHTML =
-    '<p class="empty-state">Loading listings...</p>';
+
+  const append = page > 1;
+
+  if (append) {
+    if (loadMoreBtn) {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.textContent = 'Loading...';
+    }
+  } else {
+    nextPage = null;
+    updateLoadMore();
+    listingsContainer.innerHTML =
+      '<p class="empty-state">Loading listings...</p>';
+  }
 
   try {
-    let endpoint = '';
-    if (currentQuery.trim()) {
-      endpoint = `/auction/listings/search?q=${encodeURIComponent(currentQuery.trim())}&_seller=true&_bids=true&sort=${currentSort}&sortOrder=${currentSortOrder}`;
-    } else if (currentTag) {
-      endpoint = `/auction/listings?_tag=${encodeURIComponent(currentTag)}&_active=true&_seller=true&_bids=true&sort=${currentSort}&sortOrder=${currentSortOrder}`;
-    } else {
-      endpoint = `/auction/listings?limit=24&_active=true&_seller=true&_bids=true&sort=${currentSort}&sortOrder=${currentSortOrder}`;
-    }
-
-    const result = await apiRequest<ApiResponse<Listing[]>>(endpoint);
-    renderListings(result.data);
+    const result = await apiRequest<ApiResponse<Listing[]>>(
+      buildEndpoint(page),
+    );
+    nextPage = result.meta.nextPage;
+    renderListings(result.data, append);
+    updateLoadMore();
   } catch (error) {
     console.error('Failed to fetch listings:', error);
-    listingsContainer.innerHTML =
-      '<p class="field-error">Could not load listings. Please try again later.</p>';
+    if (append) {
+      showToast('Could not load more listings.', 'error');
+      updateLoadMore();
+    } else {
+      listingsContainer.innerHTML =
+        '<p class="field-error">Could not load listings. Please try again later.</p>';
+    }
   }
 }
 
@@ -127,6 +178,12 @@ tagSelect?.addEventListener('change', () => {
   if (searchInput) searchInput.value = '';
   currentQuery = '';
   fetchListings();
+});
+
+loadMoreBtn?.addEventListener('click', () => {
+  if (nextPage) {
+    fetchListings(nextPage);
+  }
 });
 
 fetchListings();
