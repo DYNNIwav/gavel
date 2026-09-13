@@ -3,12 +3,13 @@
 A student-only auction marketplace built with vanilla TypeScript, Tailwind CSS, and the Noroff Auction House API v2. Built with Vite.
 
 Course: Semester Project 2 (Noroff)  
-Author: Pål Omland Eilevstjønn  
+Author: Pål Omland Eilevstjønn
 
 ## Links
 
 - **Live Site:** https://gavel-nu.vercel.app
 - **Repository:** https://github.com/DYNNIwav/gavel
+- **Kanban Board:** https://github.com/users/DYNNIwav/projects/9
 
 ## Features
 
@@ -36,7 +37,3 @@ Then open the URL printed in the terminal.
 ## Deployment
 
 Deployed on Vercel: https://gavel-nu.vercel.app
-
-## Notes
-
-- AI usage is documented in `AI_LOG.md`.

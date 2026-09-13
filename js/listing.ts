@@ -360,6 +360,7 @@ async function loadListing(): Promise<void> {
             method: 'POST',
             body: JSON.stringify({ amount }),
           });
+          window.dispatchEvent(new CustomEvent('credits-updated'));
           await loadListing();
           showToast('Bid placed successfully.', 'success');
         } catch (err: unknown) {

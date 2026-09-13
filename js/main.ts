@@ -15,7 +15,7 @@ const PAGE_SIZE = 24;
 
 const urlParams = new URLSearchParams(window.location.search);
 let currentQuery = '';
-let currentTag = urlParams.get('tag') ?? '';
+let currentTag = (urlParams.get('tag') ?? '').toLowerCase();
 if (currentTag && tagSelect) {
   tagSelect.value = currentTag;
 }
@@ -142,7 +142,12 @@ async function fetchListings(page = 1): Promise<void> {
       buildEndpoint(page),
     );
     nextPage = result.meta.nextPage;
-    renderListings(result.data, append);
+    const listings = currentQuery.trim()
+      ? result.data.filter(
+          (listing) => new Date(listing.endsAt).getTime() > Date.now(),
+        )
+      : result.data;
+    renderListings(listings, append);
     updateLoadMore();
   } catch (error) {
     console.error('Failed to fetch listings:', error);
@@ -178,7 +183,7 @@ sortSelect?.addEventListener('change', () => {
 });
 
 tagSelect?.addEventListener('change', () => {
-  currentTag = tagSelect.value;
+  currentTag = tagSelect.value.toLowerCase();
   if (searchInput) searchInput.value = '';
   currentQuery = '';
   const url = new URL(window.location.href);

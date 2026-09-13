@@ -46,20 +46,25 @@ if (navLinks) {
     }
     navLinks.appendChild(creditsBadge);
 
-    apiRequest<ApiResponse<Profile>>(
-      `/auction/profiles/${encodeURIComponent(username)}`,
-    )
-      .then((res) => {
-        const { credits } = res.data;
-        localStorage.setItem(KEYS.credits, String(credits));
-        creditsBadge.textContent = `${credits.toLocaleString()} credits`;
-      })
-      .catch((err) => {
-        console.warn('Could not load credit balance in navbar:', err);
-        if (!hasCached) {
-          creditsBadge.remove();
-        }
-      });
+    const refreshCredits = (): void => {
+      apiRequest<ApiResponse<Profile>>(
+        `/auction/profiles/${encodeURIComponent(username)}`,
+      )
+        .then((res) => {
+          const { credits } = res.data;
+          localStorage.setItem(KEYS.credits, String(credits));
+          creditsBadge.textContent = `${credits.toLocaleString()} credits`;
+        })
+        .catch((err) => {
+          console.warn('Could not load credit balance in navbar:', err);
+          if (!hasCached) {
+            creditsBadge.remove();
+          }
+        });
+    };
+
+    refreshCredits();
+    window.addEventListener('credits-updated', refreshCredits);
 
     const logout = document.createElement('button');
     logout.type = 'button';
