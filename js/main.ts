@@ -13,8 +13,12 @@ const loadMoreBtn = document.querySelector<HTMLButtonElement>('#load-more');
 
 const PAGE_SIZE = 24;
 
+const urlParams = new URLSearchParams(window.location.search);
 let currentQuery = '';
-let currentTag = '';
+let currentTag = urlParams.get('tag') ?? '';
+if (currentTag && tagSelect) {
+  tagSelect.value = currentTag;
+}
 let currentSort = 'created';
 let currentSortOrder = 'desc';
 let nextPage: number | null = null;
@@ -177,6 +181,13 @@ tagSelect?.addEventListener('change', () => {
   currentTag = tagSelect.value;
   if (searchInput) searchInput.value = '';
   currentQuery = '';
+  const url = new URL(window.location.href);
+  if (currentTag) {
+    url.searchParams.set('tag', currentTag);
+  } else {
+    url.searchParams.delete('tag');
+  }
+  window.history.replaceState({}, '', url.toString());
   fetchListings();
 });
 
