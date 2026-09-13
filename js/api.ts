@@ -19,7 +19,7 @@ export async function apiRequest<T>(
     ...options,
     headers: { ...headers, ...options.headers },
   });
-  const data = await response.json();
+  const data = response.status === 204 ? null : await response.json();
   if (!response.ok) {
     throw new Error(data?.errors?.[0]?.message ?? 'Something went wrong');
   }

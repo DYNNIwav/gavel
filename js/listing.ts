@@ -1,12 +1,14 @@
 import { apiRequest } from './api.ts';
+import { paintCountdown, watchCountdowns } from './countdown.ts';
 import { KEYS } from './storage.ts';
 import { showToast } from './toast.ts';
-import type { ApiResponse, Listing } from './types.ts';
+import type { ApiResponse, Listing, UpdateListingPayload } from './types.ts';
 import { isWatchlisted, toggleWatchlist } from './watchlist.ts';
 
 const params = new URLSearchParams(window.location.search);
 const listingId = params.get('id');
 const container = document.querySelector<HTMLElement>('#listing');
+const username = localStorage.getItem(KEYS.username);
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-GB', {
@@ -16,6 +18,166 @@ function formatDate(dateString: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function buildOwnerTools(listing: Listing): HTMLElement {
+  const section = document.createElement('details');
+  section.className = 'owner-tools';
+
+  const summary = document.createElement('summary');
+  summary.textContent = 'Manage this listing';
+  section.appendChild(summary);
+
+  const form = document.createElement('form');
+  form.className = 'owner-edit-form';
+
+  const formError = document.createElement('p');
+  formError.className = 'field-error';
+
+  const titleGroup = document.createElement('div');
+  titleGroup.className = 'form-group';
+  const titleLabel = document.createElement('label');
+  titleLabel.htmlFor = 'edit-title';
+  titleLabel.textContent = 'Title';
+  const titleInput = document.createElement('input');
+  titleInput.type = 'text';
+  titleInput.id = 'edit-title';
+  titleInput.required = true;
+  titleInput.value = listing.title;
+  titleGroup.append(titleLabel, titleInput);
+
+  const descGroup = document.createElement('div');
+  descGroup.className = 'form-group';
+  const descLabel = document.createElement('label');
+  descLabel.htmlFor = 'edit-description';
+  descLabel.textContent = 'Description';
+  const descInput = document.createElement('textarea');
+  descInput.id = 'edit-description';
+  descInput.rows = 4;
+  descInput.value = listing.description ?? '';
+  descGroup.append(descLabel, descInput);
+
+  const tagsGroup = document.createElement('div');
+  tagsGroup.className = 'form-group';
+  const tagsLabel = document.createElement('label');
+  tagsLabel.htmlFor = 'edit-tags';
+  tagsLabel.textContent = 'Tags';
+  const tagsInput = document.createElement('input');
+  tagsInput.type = 'text';
+  tagsInput.id = 'edit-tags';
+  tagsInput.value = listing.tags.join(', ');
+  const tagsHint = document.createElement('span');
+  tagsHint.className = 'form-hint';
+  tagsHint.textContent = 'Separate tags with commas, for example: books, art';
+  tagsGroup.append(tagsLabel, tagsInput, tagsHint);
+
+  const mediaGroup = document.createElement('div');
+  mediaGroup.className = 'form-group';
+  const mediaLabel = document.createElement('label');
+  mediaLabel.htmlFor = 'edit-media';
+  mediaLabel.textContent = 'Image URL';
+  const mediaInput = document.createElement('input');
+  mediaInput.type = 'url';
+  mediaInput.id = 'edit-media';
+  mediaInput.value = listing.media?.[0]?.url ?? '';
+  mediaGroup.append(mediaLabel, mediaInput);
+
+  const deadlineNote = document.createElement('p');
+  deadlineNote.className = 'form-hint';
+  deadlineNote.textContent = `The deadline is fixed once an auction opens. This one ends ${formatDate(listing.endsAt)}.`;
+
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'submit';
+  saveBtn.className = 'btn btn-primary';
+  saveBtn.textContent = 'Save changes';
+
+  form.append(
+    formError,
+    titleGroup,
+    descGroup,
+    tagsGroup,
+    mediaGroup,
+    deadlineNote,
+    saveBtn,
+  );
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    formError.textContent = '';
+
+    const title = titleInput.value.trim();
+    if (!title) {
+      formError.textContent = 'Please enter a title.';
+      return;
+    }
+
+    const mediaUrl = mediaInput.value.trim();
+    const payload: UpdateListingPayload = {
+      title,
+      description: descInput.value.trim(),
+      tags: tagsInput.value
+        .split(',')
+        .map((tag) => tag.trim().toLowerCase())
+        .filter(Boolean),
+      media: mediaUrl ? [{ url: mediaUrl, alt: title }] : [],
+    };
+
+    try {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      await apiRequest(`/auction/listings/${listing.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+      await loadListing();
+      showToast('Listing updated.', 'success');
+    } catch (err) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save changes';
+      formError.textContent =
+        err instanceof Error ? err.message : 'Could not update listing.';
+    }
+  });
+
+  const danger = document.createElement('div');
+  danger.className = 'owner-danger';
+
+  const dangerNote = document.createElement('p');
+  dangerNote.textContent =
+    'Deleting removes the listing and its bid history for everyone.';
+
+  const deleteError = document.createElement('p');
+  deleteError.className = 'field-error';
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.type = 'button';
+  deleteBtn.className = 'btn btn-danger';
+  deleteBtn.textContent = 'Delete listing';
+
+  deleteBtn.addEventListener('click', async () => {
+    const confirmed = window.confirm(
+      `Delete "${listing.title}"? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    try {
+      deleteError.textContent = '';
+      deleteBtn.disabled = true;
+      deleteBtn.textContent = 'Deleting...';
+      await apiRequest(`/auction/listings/${listing.id}`, { method: 'DELETE' });
+      window.location.href = '/account/profile.html?deleted=1';
+    } catch (err) {
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Delete listing';
+      deleteError.textContent =
+        err instanceof Error ? err.message : 'Could not delete listing.';
+    }
+  });
+
+  danger.append(dangerNote, deleteError, deleteBtn);
+  section.append(form, danger);
+
+  return section;
 }
 
 async function loadListing(): Promise<void> {
@@ -49,6 +211,12 @@ async function loadListing(): Promise<void> {
     meta.className = 'listing-meta';
     meta.textContent = `Listed by ${listing.seller?.name ?? 'Unknown seller'} · Ends ${formatDate(listing.endsAt)}`;
     headerMain.appendChild(meta);
+
+    const countdown = document.createElement('p');
+    countdown.className = 'listing-countdown';
+    countdown.dataset.endsAt = listing.endsAt;
+    paintCountdown(countdown);
+    headerMain.appendChild(countdown);
 
     header.appendChild(headerMain);
 
@@ -213,6 +381,10 @@ async function loadListing(): Promise<void> {
     }
 
     container.appendChild(bidsSection);
+
+    if (username && listing.seller?.name === username) {
+      container.appendChild(buildOwnerTools(listing));
+    }
   } catch (error) {
     console.error('Failed to load listing:', error);
     container.innerHTML =
@@ -221,3 +393,4 @@ async function loadListing(): Promise<void> {
 }
 
 loadListing();
+watchCountdowns();

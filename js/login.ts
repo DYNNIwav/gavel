@@ -2,7 +2,6 @@ import type { ApiResponse, AuthProfile } from './types.ts';
 import { apiRequest } from './api.ts';
 import { KEYS } from './storage.ts';
 
-
 const loginForm = document.querySelector<HTMLFormElement>('#login-form');
 const errorBox = document.querySelector('#form-error');
 

@@ -1,4 +1,5 @@
 import { apiRequest } from './api.ts';
+import { paintCountdown, watchCountdowns } from './countdown.ts';
 import type { ApiResponse, Listing } from './types.ts';
 
 const listingsContainer = document.querySelector<HTMLElement>('#listings');
@@ -11,19 +12,6 @@ let currentQuery = '';
 let currentTag = '';
 let currentSort = 'created';
 let currentSortOrder = 'desc';
-
-function formatEndsAt(dateString: string): string {
-  const diffMs = new Date(dateString).getTime() - Date.now();
-  if (diffMs <= 0) return 'Ended';
-
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  if (hours < 24) {
-    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${mins}m left`;
-  }
-  const days = Math.floor(hours / 24);
-  return `${days}d left`;
-}
 
 function renderListings(listings: Listing[]): void {
   if (!listingsContainer) return;
@@ -78,8 +66,9 @@ function renderListings(listings: Listing[]): void {
     bids.textContent = highest ? `${highest} credits` : 'No bids';
 
     const ends = document.createElement('span');
-    ends.className = 'ends';
-    ends.textContent = formatEndsAt(listing.endsAt);
+    ends.className = 'ends countdown';
+    ends.dataset.endsAt = listing.endsAt;
+    paintCountdown(ends);
 
     meta.append(bids, ends);
     body.append(title, seller, meta);
@@ -90,7 +79,8 @@ function renderListings(listings: Listing[]): void {
 
 async function fetchListings(): Promise<void> {
   if (!listingsContainer) return;
-  listingsContainer.innerHTML = '<p class="empty-state">Loading listings...</p>';
+  listingsContainer.innerHTML =
+    '<p class="empty-state">Loading listings...</p>';
 
   try {
     let endpoint = '';
@@ -106,7 +96,8 @@ async function fetchListings(): Promise<void> {
     renderListings(result.data);
   } catch (error) {
     console.error('Failed to fetch listings:', error);
-    listingsContainer.innerHTML = '<p class="field-error">Could not load listings. Please try again later.</p>';
+    listingsContainer.innerHTML =
+      '<p class="field-error">Could not load listings. Please try again later.</p>';
   }
 }
 
@@ -139,4 +130,4 @@ tagSelect?.addEventListener('change', () => {
 });
 
 fetchListings();
-
+watchCountdowns();

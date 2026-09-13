@@ -73,10 +73,13 @@ if (form) {
         submitBtn.textContent = 'Creating listing...';
       }
 
-      const response = await apiRequest<ApiResponse<Listing>>('/auction/listings', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
+      const response = await apiRequest<ApiResponse<Listing>>(
+        '/auction/listings',
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        },
+      );
 
       window.location.href = `/listing/?id=${response.data.id}`;
     } catch (error) {

@@ -73,3 +73,10 @@ export interface UpdateProfilePayload {
   avatar?: { url: string; alt?: string };
   banner?: { url: string; alt?: string };
 }
+
+export interface UpdateListingPayload {
+  title: string;
+  description: string;
+  tags: string[];
+  media: Media[];
+}

@@ -1,4 +1,5 @@
 import { apiRequest } from './api.ts';
+import { paintCountdown, watchCountdowns } from './countdown.ts';
 import { KEYS } from './storage.ts';
 import { showToast } from './toast.ts';
 import type { ApiResponse, Listing } from './types.ts';
@@ -36,14 +37,6 @@ export function toggleWatchlist(id: string): boolean {
 
 export function isWatchlisted(id: string): boolean {
   return getWatchlist().includes(id);
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
 }
 
 async function loadWatchlist(): Promise<void> {
@@ -122,8 +115,9 @@ async function loadWatchlist(): Promise<void> {
     bids.textContent = highest ? `${highest} credits` : 'No bids';
 
     const ends = document.createElement('span');
-    ends.className = 'ends';
-    ends.textContent = `Ends ${formatDate(item.endsAt)}`;
+    ends.className = 'ends countdown';
+    ends.dataset.endsAt = item.endsAt;
+    paintCountdown(ends);
 
     meta.append(bids, ends);
     body.append(title, seller, meta);
@@ -150,4 +144,5 @@ async function loadWatchlist(): Promise<void> {
 
 if (grid) {
   loadWatchlist();
+  watchCountdowns();
 }

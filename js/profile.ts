@@ -1,7 +1,10 @@
 import { apiRequest } from './api.ts';
+import { paintCountdown, watchCountdowns } from './countdown.ts';
 import { KEYS } from './storage.ts';
+import { showToast } from './toast.ts';
 import type {
   ApiResponse,
+  Listing,
   Profile,
   ProfileBid,
   UpdateProfilePayload,
@@ -11,16 +14,124 @@ const container = document.querySelector<HTMLElement>('#profile-container');
 const username = localStorage.getItem(KEYS.username);
 const token = localStorage.getItem(KEYS.token);
 
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
+
 if (!token || !username) {
   window.location.href = '/account/login.html';
 }
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+function createListingCard(listing: Listing, note?: string): HTMLAnchorElement {
+  const card = document.createElement('a');
+  card.href = `/listing/?id=${listing.id}`;
+  card.className = 'listing-card';
+
+  const img = document.createElement('img');
+  img.src = listing.media?.[0]?.url || FALLBACK_IMAGE;
+  img.alt = listing.media?.[0]?.alt || listing.title;
+  img.addEventListener('error', () => {
+    img.src = FALLBACK_IMAGE;
   });
+
+  const body = document.createElement('div');
+  body.className = 'listing-card-body';
+
+  const title = document.createElement('h3');
+  title.textContent = listing.title;
+
+  const meta = document.createElement('div');
+  meta.className = 'listing-meta-row';
+
+  if (note) {
+    const bids = document.createElement('span');
+    bids.className = 'bids';
+    bids.textContent = note;
+    meta.appendChild(bids);
+  }
+
+  const ends = document.createElement('span');
+  ends.className = 'ends countdown';
+  ends.dataset.endsAt = listing.endsAt;
+  paintCountdown(ends);
+  meta.appendChild(ends);
+
+  body.append(title, meta);
+  card.append(img, body);
+
+  return card;
+}
+
+function createListingSection(
+  heading: string,
+  cards: HTMLAnchorElement[],
+  emptyMessage: string,
+  className = 'profile-listings',
+): HTMLElement {
+  const section = document.createElement('section');
+  section.className = className;
+
+  const title = document.createElement('h2');
+  title.textContent = heading;
+  section.appendChild(title);
+
+  if (cards.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = emptyMessage;
+    section.appendChild(empty);
+    return section;
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'listing-grid';
+  grid.append(...cards);
+  section.appendChild(grid);
+
+  return section;
+}
+
+async function buildBidsSection(): Promise<HTMLElement> {
+  if (!username) return document.createElement('section');
+
+  try {
+    const bidsRes = await apiRequest<ApiResponse<ProfileBid[]>>(
+      `/auction/profiles/${encodeURIComponent(username)}/bids?_listings=true`,
+    );
+
+    const highestPerListing = new Map<
+      string,
+      { listing: Listing; amount: number }
+    >();
+    for (const bid of bidsRes.data ?? []) {
+      if (!bid.listing) continue;
+      const current = highestPerListing.get(bid.listing.id);
+      if (!current || bid.amount > current.amount) {
+        highestPerListing.set(bid.listing.id, {
+          listing: bid.listing,
+          amount: bid.amount,
+        });
+      }
+    }
+
+    const cards = [...highestPerListing.values()].map(({ listing, amount }) =>
+      createListingCard(listing, `Your bid: ${amount} credits`),
+    );
+
+    return createListingSection(
+      'Listings I Have Bid On',
+      cards,
+      'You have not placed bids on any listings yet.',
+      'profile-listings profile-bids',
+    );
+  } catch (error) {
+    console.warn('Could not load user bids:', error);
+    return createListingSection(
+      'Listings I Have Bid On',
+      [],
+      'Could not load your bid history.',
+      'profile-listings profile-bids',
+    );
+  }
 }
 
 async function loadProfile(): Promise<void> {
@@ -172,6 +283,12 @@ async function loadProfile(): Promise<void> {
           body: JSON.stringify(updateData),
         });
         await loadProfile();
+        watchCountdowns();
+
+        if (new URLSearchParams(window.location.search).has('deleted')) {
+          showToast('Listing deleted.', 'success');
+          window.history.replaceState({}, '', window.location.pathname);
+        }
       } catch (err) {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Changes';
@@ -184,144 +301,26 @@ async function loadProfile(): Promise<void> {
     card.appendChild(editSection);
     container.appendChild(card);
 
-    // Listings section
-    const listingsSection = document.createElement('section');
-    listingsSection.className = 'profile-listings';
-    const listingsHeading = document.createElement('h2');
-    listingsHeading.textContent = `My Listings (${profile.listings?.length ?? 0})`;
-    listingsSection.appendChild(listingsHeading);
+    const myListings = profile.listings ?? [];
+    container.appendChild(
+      createListingSection(
+        `My Listings (${myListings.length})`,
+        myListings.map((item) => createListingCard(item)),
+        'You have not created any listings yet.',
+      ),
+    );
 
-    if (profile.listings && profile.listings.length > 0) {
-      const grid = document.createElement('div');
-      grid.className = 'listing-grid';
+    const wins = profile.wins ?? [];
+    container.appendChild(
+      createListingSection(
+        `Listings I Have Won (${wins.length})`,
+        wins.map((item) => createListingCard(item, 'Won')),
+        'You have not won any auctions yet.',
+        'profile-listings profile-wins',
+      ),
+    );
 
-      for (const item of profile.listings) {
-        const itemCard = document.createElement('a');
-        itemCard.href = `/listing/?id=${item.id}`;
-        itemCard.className = 'listing-card';
-
-        const img = document.createElement('img');
-        img.src =
-          item.media?.[0]?.url ||
-          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
-        img.alt = item.media?.[0]?.alt || item.title;
-        img.addEventListener('error', () => {
-          img.src =
-            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
-        });
-
-        const cardBody = document.createElement('div');
-        cardBody.className = 'listing-card-body';
-
-        const title = document.createElement('h3');
-        title.textContent = item.title;
-
-        const meta = document.createElement('div');
-        meta.className = 'listing-meta-row';
-        const ends = document.createElement('span');
-        ends.className = 'ends';
-        ends.textContent = `Ends ${formatDate(item.endsAt)}`;
-        meta.appendChild(ends);
-
-        cardBody.append(title, meta);
-        itemCard.append(img, cardBody);
-        grid.appendChild(itemCard);
-      }
-      listingsSection.appendChild(grid);
-    } else {
-      const emptyMsg = document.createElement('p');
-      emptyMsg.className = 'empty-state';
-      emptyMsg.textContent = 'You have not created any listings yet.';
-      listingsSection.appendChild(emptyMsg);
-    }
-
-    container.appendChild(listingsSection);
-
-    // Listings bid on section
-    const bidsSection = document.createElement('section');
-    bidsSection.className = 'profile-listings profile-bids';
-    const bidsHeading = document.createElement('h2');
-    bidsHeading.textContent = 'Listings I Have Bid On';
-    bidsSection.appendChild(bidsHeading);
-
-    try {
-      const bidsRes = await apiRequest<ApiResponse<ProfileBid[]>>(
-        `/auction/profiles/${encodeURIComponent(username)}/bids?_listings=true`,
-      );
-      const userBids = bidsRes.data || [];
-
-      const biddedMap = new Map<
-        string,
-        { listing: NonNullable<ProfileBid['listing']>; highestBid: number }
-      >();
-      for (const b of userBids) {
-        if (!b.listing) continue;
-        const current = biddedMap.get(b.listing.id);
-        if (!current || b.amount > current.highestBid) {
-          biddedMap.set(b.listing.id, {
-            listing: b.listing,
-            highestBid: b.amount,
-          });
-        }
-      }
-
-      if (biddedMap.size > 0) {
-        const grid = document.createElement('div');
-        grid.className = 'listing-grid';
-
-        for (const { listing: item, highestBid } of biddedMap.values()) {
-          const itemCard = document.createElement('a');
-          itemCard.href = `/listing/?id=${item.id}`;
-          itemCard.className = 'listing-card';
-
-          const img = document.createElement('img');
-          img.src =
-            item.media?.[0]?.url ||
-            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
-          img.alt = item.media?.[0]?.alt || item.title;
-          img.addEventListener('error', () => {
-            img.src =
-              'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
-          });
-
-          const cardBody = document.createElement('div');
-          cardBody.className = 'listing-card-body';
-
-          const title = document.createElement('h3');
-          title.textContent = item.title;
-
-          const meta = document.createElement('div');
-          meta.className = 'listing-meta-row';
-
-          const bidInfo = document.createElement('span');
-          bidInfo.className = 'bids';
-          bidInfo.textContent = `Your bid: ${highestBid} credits`;
-
-          const ends = document.createElement('span');
-          ends.className = 'ends';
-          ends.textContent = `Ends ${formatDate(item.endsAt)}`;
-
-          meta.append(bidInfo, ends);
-          cardBody.append(title, meta);
-          itemCard.append(img, cardBody);
-          grid.appendChild(itemCard);
-        }
-        bidsSection.appendChild(grid);
-      } else {
-        const emptyBids = document.createElement('p');
-        emptyBids.className = 'empty-state';
-        emptyBids.textContent = 'You have not placed bids on any listings yet.';
-        bidsSection.appendChild(emptyBids);
-      }
-    } catch (bidErr) {
-      console.warn('Could not load user bids:', bidErr);
-      const errBids = document.createElement('p');
-      errBids.className = 'empty-state';
-      errBids.textContent = 'Could not load your bid history.';
-      bidsSection.appendChild(errBids);
-    }
-
-    container.appendChild(bidsSection);
+    container.appendChild(await buildBidsSection());
   } catch (error) {
     console.error('Failed to load profile:', error);
     container.innerHTML = '<p class="field-error">Could not load profile.</p>';
@@ -329,3 +328,9 @@ async function loadProfile(): Promise<void> {
 }
 
 loadProfile();
+watchCountdowns();
+
+if (new URLSearchParams(window.location.search).has('deleted')) {
+  showToast('Listing deleted.', 'success');
+  window.history.replaceState({}, '', window.location.pathname);
+}

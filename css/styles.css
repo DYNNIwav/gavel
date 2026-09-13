@@ -410,6 +410,17 @@
     border-color: var(--color-forest);
     color: var(--color-forest);
   }
+
+  .btn-danger {
+    background: var(--color-surface);
+    border-color: var(--color-brick);
+    color: var(--color-brick);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: var(--color-brick);
+    color: var(--color-paper);
+  }
 }
 
 @layer components {
@@ -688,6 +699,26 @@
     color: var(--color-muted);
   }
 
+  .countdown[data-countdown='soon'],
+  .listing-countdown[data-countdown='soon'] {
+    color: var(--color-ember);
+    font-weight: 600;
+  }
+
+  .countdown[data-countdown='final'],
+  .listing-countdown[data-countdown='final'] {
+    color: var(--color-brick);
+    font-weight: 600;
+  }
+
+  .listing-countdown {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-muted);
+    margin-top: var(--spacing-xs);
+    margin-bottom: 0;
+  }
+
   .watchlist-card-link {
     display: flex;
     flex-direction: column;
@@ -921,6 +952,41 @@
   .profile-edit-form {
     margin-top: var(--spacing-ml);
     max-width: 30rem;
+  }
+
+  .owner-tools {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .owner-tools summary {
+    font-weight: 600;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    color: var(--color-forest);
+  }
+
+  .owner-edit-form {
+    margin-top: var(--spacing-ml);
+    max-width: 30rem;
+  }
+
+  .owner-edit-form .form-hint {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .owner-danger {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+    max-width: 30rem;
+  }
+
+  .owner-danger p {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    margin-bottom: var(--spacing-sm);
   }
 
   .profile-listings h2 {
