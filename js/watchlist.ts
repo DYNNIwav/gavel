@@ -24,15 +24,12 @@ export function toggleWatchlist(id: string): boolean {
   if (index > -1) {
     current.splice(index, 1);
     saveWatchlist(current);
-    showToast('Removed from watchlist. Onward to greater treasures.', 'info');
+    showToast('Removed from watchlist.', 'info');
     return false;
   } else {
     current.push(id);
     saveWatchlist(current);
-    showToast(
-      "Saved to your watchlist! Don't let your dreams be memes.",
-      'success',
-    );
+    showToast('Saved to watchlist.', 'success');
     return true;
   }
 }

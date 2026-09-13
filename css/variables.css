@@ -1,5 +1,6 @@
 @theme {
   --color-paper: #faf5ec;
+  --color-paper-muted: #f0e9dc;
   --color-surface: #fffdf8;
   --color-border: #e4daca;
 
@@ -29,8 +30,8 @@
   --text-3xl: 2rem;
   --text-display: 2.75rem;
 
-  --spacing-2xs: 6px;
-  --spacing-xs: 4px;
+  --spacing-2xs: 4px;
+  --spacing-xs: 6px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-ml: 24px;

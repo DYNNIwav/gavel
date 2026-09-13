@@ -1,6 +1,11 @@
 import { apiRequest } from './api.ts';
 import { KEYS } from './storage.ts';
-import type { ApiResponse, Profile, UpdateProfilePayload } from './types.ts';
+import type {
+  ApiResponse,
+  Profile,
+  ProfileBid,
+  UpdateProfilePayload,
+} from './types.ts';
 
 const container = document.querySelector<HTMLElement>('#profile-container');
 const username = localStorage.getItem(KEYS.username);
@@ -26,30 +31,6 @@ async function loadProfile(): Promise<void> {
       `/auction/profiles/${encodeURIComponent(username)}?_listings=true&_wins=true`,
     );
     const profile = result.data;
-
-    if (localStorage.getItem('gavel_memed') !== 'v2') {
-      localStorage.setItem('gavel_memed', 'v2');
-      try {
-        await apiRequest(`/auction/profiles/${encodeURIComponent(username)}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            bio: 'Why are we still here? Just to suffer? Every night, I can feel my leg... and my arm... even my fingers.',
-            avatar: {
-              url: 'https://upload.wikimedia.org/wikipedia/en/a/a4/Hide_the_Pain_Harold_%28Andr%C3%A1s_Arat%C3%B3%29.jpg',
-              alt: 'Hide the Pain Harold',
-            },
-            banner: {
-              url: 'https://upload.wikimedia.org/wikipedia/en/0/0e/Metal_Gear_Solid_V_Phantom_Pain_screenshot.jpg',
-              alt: 'Why are we still here? Just to suffer.',
-            },
-          }),
-        });
-        await loadProfile();
-        return;
-      } catch (err) {
-        console.warn('Could not auto-seed meme profile:', err);
-      }
-    }
 
     document.title = `${profile.name} - Profile - Gavel`;
     container.textContent = '';
@@ -255,6 +236,92 @@ async function loadProfile(): Promise<void> {
     }
 
     container.appendChild(listingsSection);
+
+    // Listings bid on section
+    const bidsSection = document.createElement('section');
+    bidsSection.className = 'profile-listings profile-bids';
+    const bidsHeading = document.createElement('h2');
+    bidsHeading.textContent = 'Listings I Have Bid On';
+    bidsSection.appendChild(bidsHeading);
+
+    try {
+      const bidsRes = await apiRequest<ApiResponse<ProfileBid[]>>(
+        `/auction/profiles/${encodeURIComponent(username)}/bids?_listings=true`,
+      );
+      const userBids = bidsRes.data || [];
+
+      const biddedMap = new Map<
+        string,
+        { listing: NonNullable<ProfileBid['listing']>; highestBid: number }
+      >();
+      for (const b of userBids) {
+        if (!b.listing) continue;
+        const current = biddedMap.get(b.listing.id);
+        if (!current || b.amount > current.highestBid) {
+          biddedMap.set(b.listing.id, {
+            listing: b.listing,
+            highestBid: b.amount,
+          });
+        }
+      }
+
+      if (biddedMap.size > 0) {
+        const grid = document.createElement('div');
+        grid.className = 'listing-grid';
+
+        for (const { listing: item, highestBid } of biddedMap.values()) {
+          const itemCard = document.createElement('a');
+          itemCard.href = `/listing/?id=${item.id}`;
+          itemCard.className = 'listing-card';
+
+          const img = document.createElement('img');
+          img.src =
+            item.media?.[0]?.url ||
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
+          img.alt = item.media?.[0]?.alt || item.title;
+          img.addEventListener('error', () => {
+            img.src =
+              'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
+          });
+
+          const cardBody = document.createElement('div');
+          cardBody.className = 'listing-card-body';
+
+          const title = document.createElement('h3');
+          title.textContent = item.title;
+
+          const meta = document.createElement('div');
+          meta.className = 'listing-meta-row';
+
+          const bidInfo = document.createElement('span');
+          bidInfo.className = 'bids';
+          bidInfo.textContent = `Your bid: ${highestBid} credits`;
+
+          const ends = document.createElement('span');
+          ends.className = 'ends';
+          ends.textContent = `Ends ${formatDate(item.endsAt)}`;
+
+          meta.append(bidInfo, ends);
+          cardBody.append(title, meta);
+          itemCard.append(img, cardBody);
+          grid.appendChild(itemCard);
+        }
+        bidsSection.appendChild(grid);
+      } else {
+        const emptyBids = document.createElement('p');
+        emptyBids.className = 'empty-state';
+        emptyBids.textContent = 'You have not placed bids on any listings yet.';
+        bidsSection.appendChild(emptyBids);
+      }
+    } catch (bidErr) {
+      console.warn('Could not load user bids:', bidErr);
+      const errBids = document.createElement('p');
+      errBids.className = 'empty-state';
+      errBids.textContent = 'Could not load your bid history.';
+      bidsSection.appendChild(errBids);
+    }
+
+    container.appendChild(bidsSection);
   } catch (error) {
     console.error('Failed to load profile:', error);
     container.innerHTML = '<p class="field-error">Could not load profile.</p>';

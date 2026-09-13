@@ -38,14 +38,19 @@ async function loadListing(): Promise<void> {
     const header = document.createElement('div');
     header.className = 'listing-header';
 
+    const headerMain = document.createElement('div');
+    headerMain.className = 'listing-header-main';
+
     const title = document.createElement('h1');
     title.textContent = listing.title;
-    header.appendChild(title);
+    headerMain.appendChild(title);
 
     const meta = document.createElement('p');
     meta.className = 'listing-meta';
     meta.textContent = `Listed by ${listing.seller?.name ?? 'Unknown seller'} · Ends ${formatDate(listing.endsAt)}`;
-    header.appendChild(meta);
+    headerMain.appendChild(meta);
+
+    header.appendChild(headerMain);
 
     const watchBtn = document.createElement('button');
     watchBtn.type = 'button';
@@ -166,10 +171,7 @@ async function loadListing(): Promise<void> {
             body: JSON.stringify({ amount }),
           });
           await loadListing();
-          showToast(
-            'Bid placed! May the auction gods smile upon you.',
-            'success',
-          );
+          showToast('Bid placed successfully.', 'success');
         } catch (err: unknown) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Submit bid';
@@ -196,7 +198,15 @@ async function loadListing(): Promise<void> {
 
       for (const bid of sortedBids) {
         const item = document.createElement('li');
-        item.textContent = `${bid.amount} credits · ${formatDate(bid.created)}`;
+        const bidderName = bid.bidder?.name || 'Anonymous';
+        const strong = document.createElement('strong');
+        strong.textContent = bidderName;
+        item.append(
+          strong,
+          document.createTextNode(
+            `: ${bid.amount} credits · ${formatDate(bid.created)}`,
+          ),
+        );
         bidList.appendChild(item);
       }
       bidsSection.appendChild(bidList);

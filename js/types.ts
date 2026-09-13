@@ -9,10 +9,25 @@ export interface Seller {
   avatar: Media;
 }
 
+export interface Bidder {
+  name: string;
+  email: string;
+  bio?: string;
+  avatar?: Media;
+}
+
 export interface Bid {
   id: string;
   amount: number;
   created: string;
+  bidder?: Bidder;
+}
+
+export interface ProfileBid {
+  id: string;
+  amount: number;
+  created: string;
+  listing?: Listing;
 }
 
 export interface Listing {

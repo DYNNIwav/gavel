@@ -1,4 +1,6 @@
 import { KEYS } from './storage.ts';
+import { apiRequest } from './api.ts';
+import type { ApiResponse, Profile } from './types.ts';
 
 const navLinks = document.querySelector('#nav-links');
 const navToggle = document.querySelector('#nav-toggle');
@@ -25,14 +27,31 @@ if (navLinks) {
     loggedIn.href = '/account/profile.html';
     loggedIn.className = 'nav-user nav-link';
     loggedIn.textContent = username;
+    loggedIn.setAttribute('aria-label', `Your profile, ${username}`);
     if (window.location.pathname === '/account/profile.html') {
       loggedIn.setAttribute('aria-current', 'page');
     }
     navLinks.appendChild(loggedIn);
 
+    const creditsBadge = document.createElement('span');
+    creditsBadge.className = 'nav-credits';
+    creditsBadge.setAttribute('aria-label', 'Your available credits');
+    navLinks.appendChild(creditsBadge);
+
+    apiRequest<ApiResponse<Profile>>(
+      `/auction/profiles/${encodeURIComponent(username)}`,
+    )
+      .then((res) => {
+        creditsBadge.textContent = `${res.data.credits.toLocaleString()} credits`;
+      })
+      .catch((err) => {
+        console.warn('Could not load credit balance in navbar:', err);
+        creditsBadge.remove();
+      });
+
     const logout = document.createElement('button');
     logout.type = 'button';
-    logout.className = 'nav-link';
+    logout.className = 'nav-link nav-logout';
     logout.textContent = 'Log out';
     logout.addEventListener('click', () => {
       localStorage.removeItem(KEYS.token);
@@ -57,3 +76,28 @@ navToggle?.addEventListener('click', () => {
   navToggle.setAttribute('aria-expanded', String(!isOpen));
   navLinks?.classList.toggle('is-open', !isOpen);
 });
+
+function initGrain(): void {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const size = 128;
+  canvas.width = size;
+  canvas.height = size;
+
+  const imageData = ctx.createImageData(size, size);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const v = Math.random() * 255;
+    data[i] = v;
+    data[i + 1] = v;
+    data[i + 2] = v;
+    data[i + 3] = 255;
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  document.body.style.setProperty('--grain', `url(${canvas.toDataURL()})`);
+}
+
+initGrain();
